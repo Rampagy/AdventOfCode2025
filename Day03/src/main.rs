@@ -49,36 +49,21 @@ fn part2(contents: String) -> u64 {
 
     for (_line_num, line) in contents.lines().enumerate() {
         let numerics: Vec<u64> = line.chars().map(|x: char| x.to_digit(10).unwrap() as u64).collect();
-        // need to do a dfs on the numerics and run to completion
+        answer += find_max(numerics, 12);
     }
 
     return answer;
 }
 
 #[allow(non_snake_case)]
-fn dfs(numerics: Vec<u64>, digits: u64) -> u64 {
+fn find_max(mut numerics: Vec<u64>, digits: u64) -> u64 {
     let mut maximum: u64 = 0;
-    let mut idx: Vec<u64> = vec![];
-    let mut active_idx: u64 = digits-1;
-    for i in 0..digits {
-        idx.push(i);
-    }
-
-    while active_idx >= 0 {
-        let mut number: u64 = 0;
-        for i in idx.clone() {
-            number = (number * 10) + numerics[i as usize];
-            if number > maximum {
-                maximum = number;
-            }
-        }
-
-        if idx[active_idx as usize] + 1 < numerics.len() as u64 - (digits - active_idx) {
-            idx[active_idx as usize] += 1;
-        } else {
-            // can't slide the active index any further right, set active index one further to the left
-            active_idx
-        }
+    for skip in (0..digits).rev() {
+        let end: usize = numerics.len() - skip as usize;
+        let temp: u64 = *numerics[..end].iter().max().unwrap();
+        maximum = maximum * 10 + temp;
+        let start: usize = numerics.iter().position(|&x| x==temp).unwrap()+1;
+        numerics = numerics[start..].to_vec();
     }
 
     return maximum;
